@@ -6,7 +6,7 @@ public class Tile : MonoBehaviour
 
     public int[] Coordinates { get; private set; }
 
-    private Stack _attachedStack;
+    public Stack AttachedStack { get; private set; }
 
     public void Initialize(int[] coord)
     {
@@ -24,11 +24,16 @@ public class Tile : MonoBehaviour
 
     public void AttachStack(Stack stack)
     {
-        _attachedStack = stack;
+        AttachedStack = stack;
+    }
+
+    public void ResetStack()
+    {
+        AttachedStack = null;
     }
 
     public bool IsFree()
     {
-        return _attachedStack == null;
+        return AttachedStack == null;
     }
 }

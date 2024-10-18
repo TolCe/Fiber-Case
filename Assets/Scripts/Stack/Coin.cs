@@ -1,3 +1,5 @@
+using DG.Tweening;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
@@ -5,25 +7,27 @@ public class Coin : MonoBehaviour
 {
     [SerializeField] private CoinDataSO _coinData;
 
-    public Stack ParentStack { get; private set; }
-
     [SerializeField] private MeshRenderer _meshRend;
 
     [SerializeField] private TMP_Text _valueText;
 
     public int Value { get; private set; }
 
-    public void Initialize(Stack stack)
+    public Stack AttachedStack { get; private set; }
+
+    public void Initialize()
     {
-        ParentStack = stack;
-
-        transform.SetParent(ParentStack.transform);
-
         SetRandomValue();
 
         SetColor();
 
         gameObject.SetActive(true);
+    }
+
+    public void AttachToStack(Stack stack)
+    {
+        AttachedStack = stack;
+        transform.SetParent(AttachedStack.transform);
     }
 
     private void SetRandomValue()
@@ -42,13 +46,14 @@ public class Coin : MonoBehaviour
         _meshRend.material = _coinData.ColorsByValue[Value - 1];
     }
 
-    public void SetPosition(Vector3 pos)
+    public async Task SetPosition(Vector3 pos, float duration)
     {
-        transform.localPosition = pos;
+        await transform.DOLocalMove(pos, duration).AsyncWaitForCompletion();
     }
 
-    public async void MoveCoin(Stack targetStack)
+    public async Task MoveCoin(Stack targetStack)
     {
-
+        AttachedStack.RemoveCoin(this);
+        await targetStack.AddCoin(this, _coinData.MoveDuration);
     }
 }

@@ -16,4 +16,5 @@ MonoBehaviour:
   _height: 7
   _tilePrefab: {fileID: 4997768717512538552, guid: e6c3942022c10ef48bcc3288b49a1ae6, type: 3}
   _initialPoolSize: 20
-  _spacing: 0.1
+  _cellSize: 1
+  _spacing: 0

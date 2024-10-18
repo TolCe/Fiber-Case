@@ -17,6 +17,7 @@ public class StackMoveController : Singleton<StackMoveController>
         await stack.MoveStack(targetTile.transform.position);
 
         stack.AttachToTile(targetTile);
+        StackMergeController.Instance.CheckHorizontalNeighboursForMerge(stack);
 
         StackShowcase.Instance.OnMainStackMoved();
     }

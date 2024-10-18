@@ -28,16 +28,36 @@ public class Stack : MonoBehaviour
         for (int i = 0; i < coinAmount; i++)
         {
             Coin coin = StackController.Instance.GetCoinFromPool();
-            coin.Initialize(this);
-            coin.SetPosition(StackController.Instance.StackData.Spacing * CoinList.Count * Vector3.up);
-
             AddCoin(coin);
+            coin.Initialize();
         }
     }
 
-    public void AddCoin(Coin coin)
+    public async Task AddCoin(Coin coin, float moveDuration = 0f)
     {
         CoinList.Add(coin);
+        coin.AttachToStack(this);
+        await coin.SetPosition(StackController.Instance.StackData.Spacing * (CoinList.Count - 1) * Vector3.up, moveDuration);
+    }
+
+    public void RemoveCoin(Coin coin)
+    {
+        CoinList.Remove(coin);
+
+        if (CoinList.Count == 0)
+        {
+            DestroyStack();
+        }
+    }
+
+    public Coin GetTopCoin()
+    {
+        if (CoinList.Count <= 0)
+        {
+            return null;
+        }
+
+        return CoinList[CoinList.Count - 1];
     }
 
     public async Task MoveStack(Vector3 targetPos)
@@ -49,5 +69,11 @@ public class Stack : MonoBehaviour
     {
         AttachedTile = tile;
         tile.AttachStack(this);
+    }
+
+    private void DestroyStack()
+    {
+        AttachedTile.ResetStack();
+        StackController.Instance.ReturnStackToPool(this);
     }
 }

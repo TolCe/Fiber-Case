@@ -33,4 +33,9 @@ public class StackController : Singleton<StackController>, IPoolable
     {
         return _stackPool.Get();
     }
+
+    public void ReturnStackToPool(Stack stack)
+    {
+        _stackPool.Return(stack);
+    }
 }

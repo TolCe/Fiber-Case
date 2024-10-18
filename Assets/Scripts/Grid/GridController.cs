@@ -71,6 +71,18 @@ public class GridController : Singleton<GridController>, IPoolable
         }
     }
 
+    public Tile GetTileAt(int row, int column)
+    {
+        try
+        {
+            return _tiles[row, column];
+        }
+        catch (System.Exception)
+        {
+            return null;
+        }
+    }
+
     public Vector3 GetTilePosition(int row, int column)
     {
         return _tiles[row, column].transform.position;
