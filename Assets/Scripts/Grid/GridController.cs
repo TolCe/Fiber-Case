@@ -1,11 +1,13 @@
 using UnityEngine;
 
-public class GridController : Singleton<GridController>
+public class GridController : Singleton<GridController>, IPoolable
 {
     [SerializeField] private GridDataSO _gridData;
 
     private ObjectPool<Tile> _tilePool;
     [SerializeField] private Transform _tileContainerTransform;
+
+    private Tile[,] _tiles;
 
     protected override void Awake()
     {
@@ -18,15 +20,17 @@ public class GridController : Singleton<GridController>
         InitializeGrid();
     }
 
-    private void CreatePool()
+    public void CreatePool()
     {
         _tilePool = new ObjectPool<Tile>(_gridData.TilePrefab, _gridData.InitialPoolSize, _tileContainerTransform);
     }
 
     private void InitializeGrid()
     {
-        float xOffset = (_gridData.Width - 1) / 2f * (1 + _gridData.Spacing);
-        float zOffset = (_gridData.Height - 1) / 2f * (1 + _gridData.Spacing);
+        _tiles = new Tile[_gridData.Height, _gridData.Width];
+
+        float xOffset = (_gridData.Width - 1) / 2f * (_gridData.CellSize + _gridData.Spacing);
+        float zOffset = (_gridData.Height - 1) / 2f * (_gridData.CellSize + _gridData.Spacing);
 
         for (int i = 0; i < _gridData.Height; i++)
         {
@@ -38,8 +42,37 @@ public class GridController : Singleton<GridController>
                 float xPos = j * (1 + _gridData.Spacing) - xOffset;
                 float zPos = i * (1 + _gridData.Spacing) - zOffset;
 
+                _tiles[i, j] = tile;
+
                 tile.SetPosition(new Vector3(xPos, 0, zPos));
             }
         }
+    }
+
+    public Tile CheckColumnFreeTileRow(int column)
+    {
+        int lastRow = -1;
+
+        for (int i = 0; i < _tiles.GetLength(0); i++)
+        {
+            if (_tiles[i, column].IsFree())
+            {
+                lastRow = i;
+            }
+        }
+
+        if (lastRow >= 0)
+        {
+            return _tiles[lastRow, column];
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    public Vector3 GetTilePosition(int row, int column)
+    {
+        return _tiles[row, column].transform.position;
     }
 }

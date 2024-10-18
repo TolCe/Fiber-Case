@@ -15,6 +15,9 @@ public class GridDataSO : ScriptableObject
     [SerializeField] private int _initialPoolSize = 20;
     public int InitialPoolSize { get { return _initialPoolSize; } }
 
+    [SerializeField] private float _cellSize = 1f;
+    public float CellSize { get { return _cellSize; } }
+
     [SerializeField] private float _spacing = 0.1f;
     public float Spacing { get { return _spacing; } }
 }
