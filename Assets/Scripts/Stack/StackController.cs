@@ -12,15 +12,11 @@ public class StackController : Singleton<StackController>, IPoolable
     private ObjectPool<Stack> _stackPool;
     [SerializeField] private Transform _stackContainerTransform;
 
-    public List<Stack> ActiveStackList { get; private set; }
-
     protected override void Awake()
     {
         base.Awake();
 
         CreatePool();
-
-        ActiveStackList = new List<Stack>();
     }
 
     public void CreatePool()
@@ -32,7 +28,6 @@ public class StackController : Singleton<StackController>, IPoolable
     public Coin GenerateNewCoin(int value = -1)
     {
         Coin coin = _coinPool.Get();
-        coin.Initialize(value);
         return coin;
     }
 
@@ -55,21 +50,9 @@ public class StackController : Singleton<StackController>, IPoolable
         {
             await StackMoveController.Instance.TryMove(GridController.Instance.GetTileAt(new Vector2(coord.x, i)).AttachedStack, coord);
         }
-
-        ActiveStackList.Remove(stack);
     }
 
-    public void ActivateStack(Stack stack)
-    {
-        if (ActiveStackList.Contains(stack))
-        {
-            return;
-        }
-
-        ActiveStackList.Add(stack);
-    }
-
-    public void CheckForCoinUpgrades(Stack stack)
+    public async void CheckForCoinUpgrades(Stack stack)
     {
         List<Coin> sameCoinList = new List<Coin>() { stack.CoinList[stack.CoinList.Count - 1] };
         for (int i = stack.CoinList.Count - 2; i >= 0; i--)
@@ -91,7 +74,8 @@ public class StackController : Singleton<StackController>, IPoolable
             {
                 DiscardCoin(coin);
             }
-            stack.GenerateNewCoin(-1f, oldValue + 1);
+            await stack.GenerateNewCoin(-1f, oldValue + 1);
+            await StackMergeController.Instance.CheckNeighboursForMerge(stack);
         }
     }
 }

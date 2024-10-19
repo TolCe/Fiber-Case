@@ -34,7 +34,12 @@ public class Stack : MonoBehaviour
     public async Task GenerateNewCoin(float moveDuration = -1f, int value = -1)
     {
         Coin coin = StackController.Instance.GenerateNewCoin(value);
+
         await coin.MoveCoin(this, moveDuration);
+
+        coin.Initialize(value);
+
+        await Task.Delay(0);
     }
 
     public void AddCoin(Coin coin)
@@ -49,7 +54,7 @@ public class Stack : MonoBehaviour
 
         if (CoinList.Count <= 0)
         {
-            DestroyStack();
+            DestroyStack(AttachedTile.Coordinates);
         }
     }
 
@@ -72,20 +77,18 @@ public class Stack : MonoBehaviour
     public void AttachToTile(Tile tile)
     {
         AttachedTile = tile;
-        StackController.Instance.ActivateStack(this);
         tile.AttachStack(this);
     }
 
-    private void DestroyStack()
+    private void DestroyStack(Vector2 coord)
     {
-        Vector2 coord = AttachedTile.Coordinates;
         ResetStack();
         StackController.Instance.DiscardStack(this, coord);
     }
 
     private void ResetStack()
     {
-        AttachedTile?.ResetStack();
+        AttachedTile?.ResetTile();
         AttachedTile = null;
     }
 }

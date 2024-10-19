@@ -39,7 +39,7 @@ public class Tile : MonoBehaviour
         AttachedStack = stack;
     }
 
-    public void ResetStack()
+    public void ResetTile()
     {
         AttachedStack = null;
     }
