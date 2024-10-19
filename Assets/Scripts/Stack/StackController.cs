@@ -47,13 +47,13 @@ public class StackController : Singleton<StackController>, IPoolable
         return _stackPool.Get();
     }
 
-    public void DiscardStack(Stack stack, Vector2 coord)
+    public async void DiscardStack(Stack stack, Vector2 coord)
     {
         _stackPool.Return(stack);
 
-        for (int i = (int)coord.x; i >= 0; i--)
+        for (int i = (int)coord.y + 1; i < GridController.Instance.GridSize.y; i++)
         {
-            StackMoveController.Instance.TryMove(GridController.Instance.GetTileAt(new Vector2(i, coord.y)).AttachedStack, coord);
+            await StackMoveController.Instance.TryMove(GridController.Instance.GetTileAt(new Vector2(coord.x, i)).AttachedStack, coord);
         }
 
         ActiveStackList.Remove(stack);

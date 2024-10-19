@@ -25,9 +25,9 @@ public class StackMoveController : Singleton<StackMoveController>
 
     public async Task TryMove(Stack stack, Vector2 coord)
     {
-        Tile targetTile = GridController.Instance.CheckColumnFreeTileRow((int)coord.y);
+        Tile targetTile = GridController.Instance.CheckColumnFreeTileRow((int)coord.x);
 
-        if (targetTile == null)
+        if (stack == null || targetTile == null)
         {
             return;
         }

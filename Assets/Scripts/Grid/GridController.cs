@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GridController : Singleton<GridController>, IPoolable
@@ -7,7 +8,9 @@ public class GridController : Singleton<GridController>, IPoolable
     private ObjectPool<Tile> _tilePool;
     [SerializeField] private Transform _tileContainerTransform;
 
-    private Tile[,] _tiles;
+    public Dictionary<Vector2, Tile> TileDictionary { get; private set; }
+
+    public Vector2 GridSize { get { return new Vector2(_gridData.Width, _gridData.Height); } }
 
     protected override void Awake()
     {
@@ -27,7 +30,7 @@ public class GridController : Singleton<GridController>, IPoolable
 
     private void InitializeGrid()
     {
-        _tiles = new Tile[_gridData.Height, _gridData.Width];
+        TileDictionary = new Dictionary<Vector2, Tile>();
 
         float xOffset = (_gridData.Width - 1) / 2f * (_gridData.CellSize + _gridData.Spacing);
         float zOffset = (_gridData.Height - 1) / 2f * (_gridData.CellSize + _gridData.Spacing);
@@ -37,14 +40,20 @@ public class GridController : Singleton<GridController>, IPoolable
             for (int j = 0; j < _gridData.Width; j++)
             {
                 Tile tile = _tilePool.Get();
-                tile.Initialize(new Vector2(i, j));
+                Vector2 coord = new Vector2(j, i);
+                tile.Initialize(coord);
 
                 float xPos = j * (1 + _gridData.Spacing) - xOffset;
-                float zPos = i * (1 + _gridData.Spacing) - zOffset;
+                float zPos = (_gridData.Height - 1 - i) * (1 + _gridData.Spacing) - zOffset;
 
-                _tiles[i, j] = tile;
+                TileDictionary.Add(new Vector2(j, i), tile);
 
                 tile.SetPosition(new Vector3(xPos, 0, zPos));
+
+                if (_gridData.LockedTileCoords.Contains(coord))
+                {
+                    tile.LockTile();
+                }
             }
         }
     }
@@ -53,9 +62,14 @@ public class GridController : Singleton<GridController>, IPoolable
     {
         int lastRow = -1;
 
-        for (int i = 0; i < _tiles.GetLength(0); i++)
+        for (int i = _gridData.Height - 1; i >= 0; i--)
         {
-            if (_tiles[i, column].IsFree())
+            if (TileDictionary[new Vector2(column, i)].IsLocked)
+            {
+                break;
+            }
+
+            if (TileDictionary[new Vector2(column, i)].IsFree())
             {
                 lastRow = i;
             }
@@ -63,7 +77,7 @@ public class GridController : Singleton<GridController>, IPoolable
 
         if (lastRow >= 0)
         {
-            return _tiles[lastRow, column];
+            return TileDictionary[new Vector2(column, lastRow)];
         }
         else
         {
@@ -75,7 +89,7 @@ public class GridController : Singleton<GridController>, IPoolable
     {
         try
         {
-            return _tiles[(int)coord.x, (int)coord.y];
+            return TileDictionary[coord];
         }
         catch (System.Exception)
         {
@@ -85,6 +99,6 @@ public class GridController : Singleton<GridController>, IPoolable
 
     public Vector3 GetTilePosition(int row, int column)
     {
-        return _tiles[row, column].transform.position;
+        return TileDictionary[new Vector2(column, row)].transform.position;
     }
 }

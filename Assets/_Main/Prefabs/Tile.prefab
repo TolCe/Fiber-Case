@@ -47,6 +47,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _trigger: {fileID: 5207199032595971414}
+  _lockedMaterial: {fileID: 2100000, guid: fab371e835508e74392af5e84d9c04af, type: 2}
+  _meshRend: {fileID: 3964935848394325450}
 --- !u!1 &5303777987820178219
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "GridData", menuName = "Grid/Grid Data")]
@@ -20,4 +21,7 @@ public class GridDataSO : ScriptableObject
 
     [SerializeField] private float _spacing = 0.1f;
     public float Spacing { get { return _spacing; } }
+
+    [SerializeField] private List<Vector2> _lockedTileCoords;
+    public List<Vector2> LockedTileCoords { get { return _lockedTileCoords; } }
 }
