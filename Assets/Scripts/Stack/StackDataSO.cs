@@ -16,4 +16,7 @@ public class StackDataSO : ScriptableObject
 
     [SerializeField] private float _spacing = 0.2f;
     public float Spacing { get { return _spacing; } }
+
+    [SerializeField] private int _minAmountToUpgrade = 10;
+    public int MinAmountToUpgrade { get { return _minAmountToUpgrade; } }
 }

@@ -40,7 +40,6 @@ public class ObjectPool<T> where T : Component
 
         T newObj = Object.Instantiate(_prefab, _parentTransform);
         _reservedItems.Add(newObj);
-        newObj.gameObject.SetActive(false);
         return newObj;
     }
 

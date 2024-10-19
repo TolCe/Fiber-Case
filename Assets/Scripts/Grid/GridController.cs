@@ -37,7 +37,7 @@ public class GridController : Singleton<GridController>, IPoolable
             for (int j = 0; j < _gridData.Width; j++)
             {
                 Tile tile = _tilePool.Get();
-                tile.Initialize(new int[] { i, j });
+                tile.Initialize(new Vector2(i, j));
 
                 float xPos = j * (1 + _gridData.Spacing) - xOffset;
                 float zPos = i * (1 + _gridData.Spacing) - zOffset;
@@ -71,11 +71,11 @@ public class GridController : Singleton<GridController>, IPoolable
         }
     }
 
-    public Tile GetTileAt(int row, int column)
+    public Tile GetTileAt(Vector2 coord)
     {
         try
         {
-            return _tiles[row, column];
+            return _tiles[(int)coord.x, (int)coord.y];
         }
         catch (System.Exception)
         {

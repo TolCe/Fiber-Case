@@ -17,3 +17,4 @@ MonoBehaviour:
   - {fileID: 2100000, guid: be0fb45b31ae6b64d93a963e9f04acce, type: 2}
   - {fileID: 2100000, guid: dab7f13eb8001a445bb39cc2c0b61a88, type: 2}
   - {fileID: 2100000, guid: 59af843a3239f9e4e87fe9c3e7324edd, type: 2}
+  _moveDuration: 0.15

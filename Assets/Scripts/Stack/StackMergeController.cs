@@ -5,35 +5,43 @@ using UnityEngine;
 
 public class StackMergeController : Singleton<StackMergeController>
 {
-    public async void CheckHorizontalNeighboursForMerge(Stack stack)
+    [SerializeField] private List<Vector2> _neighbourCoordList = new List<Vector2>() { Vector2.right, Vector2.left, Vector2.up, Vector2.down };
+
+    public async Task CheckNeighboursForMerge(Stack stack)
     {
-        int row = stack.AttachedTile.Coordinates[0];
-        int column = stack.AttachedTile.Coordinates[1] - 1;
-        Tile tile = GridController.Instance.GetTileAt(row, column);
+        List<Stack> stacksToCheckList = new List<Stack>() { stack };
+        List<Stack> modifiedStacksList = new List<Stack>();
 
-        if (tile?.AttachedStack != null)
+        foreach (Vector2 coord in _neighbourCoordList)
         {
-            List<Coin> matchedCoinList = GatherUntilNoMatch(stack, tile.AttachedStack);
-            await MergeCoins(matchedCoinList, stack);
+            Vector2 targetCoord = coord;
+            try
+            {
+                targetCoord += stack.AttachedTile.Coordinates;
+            }
+            catch (System.Exception)
+            {
+                return;
+            }
+
+            Stack neighbourStack = GridController.Instance.GetTileAt(targetCoord)?.AttachedStack;
+
+            if (neighbourStack != null)
+            {
+                List<Coin> matchedCoinList = GatherUntilNoMatch(stack, neighbourStack);
+                if (matchedCoinList.Count > 0)
+                {
+                    modifiedStacksList.Add(neighbourStack);
+                    await MergeCoins(matchedCoinList, stack);
+                }
+            }
         }
 
-        column = stack.AttachedTile.Coordinates[1] + 1;
-        tile = GridController.Instance.GetTileAt(row, column);
+        StackController.Instance.CheckForCoinUpgrades(stack);
 
-        if (tile?.AttachedStack != null)
+        foreach (Stack modifiedStack in modifiedStacksList)
         {
-            List<Coin> matchedCoinList = GatherUntilNoMatch(stack, tile.AttachedStack);
-            await MergeCoins(matchedCoinList, stack);
-        }
-
-        row = stack.AttachedTile.Coordinates[0] + 1;
-        column = stack.AttachedTile.Coordinates[1];
-        tile = GridController.Instance.GetTileAt(row, column);
-
-        if (tile?.AttachedStack != null)
-        {
-            List<Coin> matchedCoinList = GatherUntilNoMatch(tile.AttachedStack, stack);
-            await MergeCoins(matchedCoinList, tile.AttachedStack);
+            await CheckNeighboursForMerge(modifiedStack);
         }
     }
 
@@ -60,7 +68,7 @@ public class StackMergeController : Singleton<StackMergeController>
     {
         foreach (Coin coin in coinList)
         {
-            await coin.MoveCoin(targetStack);
+            await coin.MoveCoin(targetStack, -1);
         }
     }
 }

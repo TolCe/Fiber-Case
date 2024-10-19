@@ -21,30 +21,33 @@ public class Stack : MonoBehaviour
         GenerateRandomCoins();
     }
 
-    private void GenerateRandomCoins()
+    private async void GenerateRandomCoins()
     {
         int coinAmount = Random.Range(1, 6);
 
         for (int i = 0; i < coinAmount; i++)
         {
-            Coin coin = StackController.Instance.GetCoinFromPool();
-            AddCoin(coin);
-            coin.Initialize();
+            await GenerateNewCoin(0f);
         }
     }
 
-    public async Task AddCoin(Coin coin, float moveDuration = 0f)
+    public async Task GenerateNewCoin(float moveDuration = -1f, int value = -1)
+    {
+        Coin coin = StackController.Instance.GenerateNewCoin(value);
+        await coin.MoveCoin(this, moveDuration);
+    }
+
+    public void AddCoin(Coin coin)
     {
         CoinList.Add(coin);
         coin.AttachToStack(this);
-        await coin.SetPosition(StackController.Instance.StackData.Spacing * (CoinList.Count - 1) * Vector3.up, moveDuration);
     }
 
     public void RemoveCoin(Coin coin)
     {
         CoinList.Remove(coin);
 
-        if (CoinList.Count == 0)
+        if (CoinList.Count <= 0)
         {
             DestroyStack();
         }
@@ -62,18 +65,27 @@ public class Stack : MonoBehaviour
 
     public async Task MoveStack(Vector3 targetPos)
     {
+        ResetStack();
         await transform.DOMove(targetPos, 0.4f).AsyncWaitForCompletion();
     }
 
     public void AttachToTile(Tile tile)
     {
         AttachedTile = tile;
+        StackController.Instance.ActivateStack(this);
         tile.AttachStack(this);
     }
 
     private void DestroyStack()
     {
-        AttachedTile.ResetStack();
-        StackController.Instance.ReturnStackToPool(this);
+        Vector2 coord = AttachedTile.Coordinates;
+        ResetStack();
+        StackController.Instance.DiscardStack(this, coord);
+    }
+
+    private void ResetStack()
+    {
+        AttachedTile?.ResetStack();
+        AttachedTile = null;
     }
 }

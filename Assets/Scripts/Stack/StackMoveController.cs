@@ -1,25 +1,46 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class StackMoveController : Singleton<StackMoveController>
 {
     [SerializeField] private StackDataSO _stackData;
 
-    public async void TryMove(int column)
+    public bool MovementDone { get; private set; }
+
+    private void Start()
     {
-        Stack stack = StackShowcase.Instance.MainStack;
-        Tile targetTile = GridController.Instance.CheckColumnFreeTileRow(column);
+        MovementDone = true;
+    }
+
+    public async void TryMoveMain(Stack stack, Vector2 coord)
+    {
+        if (!MovementDone)
+        {
+            return;
+        }
+
+        StackShowcase.Instance.OnMainStackMoved();
+        await TryMove(stack, coord);
+    }
+
+    public async Task TryMove(Stack stack, Vector2 coord)
+    {
+        Tile targetTile = GridController.Instance.CheckColumnFreeTileRow((int)coord.y);
 
         if (targetTile == null)
         {
             return;
         }
 
+        MovementDone = false;
+
         await stack.MoveStack(targetTile.transform.position);
 
         stack.AttachToTile(targetTile);
-        StackMergeController.Instance.CheckHorizontalNeighboursForMerge(stack);
 
-        StackShowcase.Instance.OnMainStackMoved();
+        await StackMergeController.Instance.CheckNeighboursForMerge(stack);
+
+        MovementDone = true;
     }
 
     public Vector3 CalculateTargetPosition(Stack stack)

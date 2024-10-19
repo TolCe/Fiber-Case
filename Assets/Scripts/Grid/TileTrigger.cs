@@ -13,6 +13,6 @@ public class TileTrigger : MonoBehaviour
 
     private void OnMouseDown()
     {
-        StackMoveController.Instance.TryMove(_tile.Coordinates[1]);
+        StackMoveController.Instance.TryMoveMain(StackShowcase.Instance.MainStack, _tile.Coordinates);
     }
 }

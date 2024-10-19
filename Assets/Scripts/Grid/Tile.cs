@@ -4,11 +4,11 @@ public class Tile : MonoBehaviour
 {
     [SerializeField] private TileTrigger _trigger;
 
-    public int[] Coordinates { get; private set; }
+    public Vector2 Coordinates { get; private set; }
 
     public Stack AttachedStack { get; private set; }
 
-    public void Initialize(int[] coord)
+    public void Initialize(Vector2 coord)
     {
         Coordinates = coord;
 
